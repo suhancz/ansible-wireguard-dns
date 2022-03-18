@@ -1,0 +1,26 @@
+- name: Configure DNSMASQ
+  lineinfile:
+    path: /etc/dnsmasq.conf
+    line: "{{ item }}"
+    mode: u=rw,og=r
+    owner: root
+    group: dnsmasq
+    state: present
+    backup: yes
+  loop:
+    - clear-on-reload
+    - log-queries
+    - dns-loop-detect
+    - stop-dns-rebind
+    - rebind-localhost-ok
+    - domain-needed
+    - no-negcache
+    - dnssec
+    - dnssec-check-unsigned
+    - conf-file=/usr/share/dnsmasq/trust-anchors.conf
+- name: Make sure DNSMASQ is running
+  systemd:
+    name: dnsmasq
+    daemon_reload: yes
+    enabled: yes
+    state: restarted

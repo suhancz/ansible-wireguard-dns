@@ -6,4 +6,6 @@
       - wireguard-tools
       - iptables-services
       - conntrack-tools
+      - dnsmasq
+      - dnsmasq-utils
     state: latest

@@ -10,3 +10,5 @@
   include: os.yml
 - name: Configure WireGuard
   include: wireguard.yml
+- name: Configure DNS
+  include: dns.yml
