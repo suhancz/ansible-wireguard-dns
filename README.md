@@ -47,3 +47,8 @@ License
 -------
 
 GPLv3
+
+Author Information
+------------------
+
+Akos Balla
