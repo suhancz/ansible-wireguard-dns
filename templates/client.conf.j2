@@ -1,0 +1,23 @@
+[Interface]
+{% if 'mtu' in item.value %}
+MTU = {{ item.value.mtu }}
+{% endif %}
+Address = {{ item.value.cidr }}
+PrivateKey = {{ item.value.privatekey }}
+{% if dns_ip is defined %}
+DNS = {{ dns_ip }}
+{% endif %}
+{% if 'lport' in item.value %}
+ListenPort = {{ item.value.lport }}
+{% endif %}
+
+[Peer]
+PublicKey = {{ configs.server.publickey }}
+Endpoint = {{ configs.server.address }}:{{ configs.server.lport }}
+AllowedIPs = 0.0.0.0/0, ::/0
+{% if 'psk' in item.value %}
+PresharedKey = {{ item.value.psk }}
+{% endif %}
+{% if 'keepalive' in item.value %}
+PersistentKeepalive = {{ item.value.keepalive }}
+{% endif %}

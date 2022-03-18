@@ -1,0 +1,21 @@
+---
+# defaults file for ansible-freshtomato-tunsafe-wireguard
+server:
+  mtu: 1412 # optional
+  cidr: 10.42.42.1/24 # mandatory
+  # publickey: oigftjkgjfnbkgjsdnsiungiusegiurbabjkan # mandatory, but advised to set in vars/secret.yml - the server's public key
+  # privatekey: v9w045jmt05u8ebp98up5m9yuabmsuyj # mandatory, but advised to set in vars/secret.yml - the server's private key
+  # address: this.is.my.server # mandatory, but advised to set in vars/secret.yml
+  # lport: 12345 # mandatory, but advised to set in vars/secret.yml
+# dns_ip: 8.8.8.8 # mandatory, but advised to set in vars/secret.yml
+# domain: my.server # mandatory, but advised to set in vars/secret.yml
+outputdir: /etc/wireguard # optional
+# clients:
+#   myclient: # name of the client for reference
+#     cidr: 10.42.42.254/32 # mandatory, but advised to set in vars/secret.yml
+#     publickey: oigftjkgjfnbkgjsdnsiungiusegiurbabjkan # mandatory, but advised to set in vars/secret.yml
+#     psk: v5utmw9utwumtp5ut5pttw598t # optional, advised to set in vars/secret.yml
+#     privatekey: v9w045jmt05u8ebp98up5m9yuabmsuyj # mandatory, but advised to set in vars/secret.yml
+#     keepalive: 15 # optional
+#     lport: 9876 # optional
+#     mtu: 1412 # optional

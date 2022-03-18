@@ -1,0 +1,20 @@
+[Interface]
+{% if 'mtu' in configs.server %}
+MTU={{ configs.server.mtu }}
+{% endif %}
+PrivateKey = {{ configs.server.privatekey }}
+ListenPort = {{ configs.server.lport }}
+Address = {{ configs.server.cidr }}
+
+{% for client in configs|dict2items %}
+{% if client.key != "server" %}
+[Peer]
+# Name = {{ client.key }}
+PublicKey = {{ client.value.publickey }}
+AllowedIPs = {{ client.value.cidr }}
+{% if 'psk' in client.value %}
+PresharedKey = {{ client.value.psk }}
+{% endif %}
+{% endif %}
+
+{% endfor %}

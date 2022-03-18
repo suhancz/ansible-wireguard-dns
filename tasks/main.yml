@@ -1,0 +1,12 @@
+---
+# tasks file for ansible-freshtomato-tunsafe-wireguard
+- name: Read default variables
+  include_vars: vars/secret.yml
+- name: Merge server with defaults
+  set_fact:
+    server: "{{ server|default({})|combine(server_secret, recursive=True) }}"
+    clients: "{{ clients|default({})|combine(clients_secret, recursive=True) }}"
+- name: Configure OS
+  include: os.yml
+- name: Configure WireGuard
+  include: wireguard.yml

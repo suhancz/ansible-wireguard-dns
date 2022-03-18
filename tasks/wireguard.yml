@@ -1,0 +1,56 @@
+---
+- name: Generate WireGuard server keys
+  include_tasks: generate_keys.yml
+  vars:
+    wg_name: "server"
+    wg_privatekey: "{{ server.privatekey|default('') }}"
+    wg_publickey: "{{ server.publickey|default('') }}"
+  tags: server
+  register: server_keys
+- name: Generate WireGuard client keys
+  include_tasks: generate_keys.yml
+  vars:
+    wg_name: "{{ item.key }}"
+    wg_privatekey: "{{ item.value.privatekey|default('') }}"
+    wg_publickey: "{{ item.value.publickey|default('') }}"
+    wg_psk: "{{ item.value.psk|default('') }}"
+  tags: client
+  loop: "{{ clients|dict2items }}"
+  register: client_keys
+- name: Merge initial server config with generated keys
+  set_fact:
+    configs: "{{ configs|default({})|combine({'server': server}, recursive=True) }}"
+- name: Merge initial client config with generated keys
+  set_fact:
+    configs: "{{ configs|default({})|combine(clients, recursive=True) }}"
+- name: Make sure output directory exists
+  file:
+    state: directory
+    name: "{{ outputdir }}"
+- name: Generate server config
+  template:
+    src: server.conf.j2
+    dest: "{{ outputdir }}/wg-server.conf"
+    backup: yes
+- name: Create client config dirs
+  file:
+    state: directory
+    name: "{{ outputdir }}/clients/{{ item.key }}"
+  loop: "{{ configs|dict2items }}"
+  when: item.key != "server"
+- name: Generate client configs
+  template:
+    src: client.conf.j2
+    dest: "{{ outputdir }}/clients/{{ item.key }}/wg0.conf"
+    backup: yes
+  loop: "{{ configs|dict2items }}"
+  when: item.key != "server"
+- name: Start or restart WireGuard server
+  block:
+    - name: Start WireGuard server
+      command: "wg-quick up {{ outputdir }}/wg-server.conf"
+  rescue:
+    - name: Stop WireGuard server
+      command: "wg-quick down {{ outputdir }}/wg-server.conf"
+    - name: Start WireGuard server
+      command: "wg-quick up {{ outputdir }}/wg-server.conf"
