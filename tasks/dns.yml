@@ -29,6 +29,8 @@
     - interface-name=ens192,vpn
     - interface-name=wg-dns-server,wireguard
     - "domain={{ domain }}"
+    - expand-hosts
+    - bogus-priv
 - name: Make sure DNSMASQ is running
   systemd:
     name: dnsmasq
