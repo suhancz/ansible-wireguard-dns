@@ -6,6 +6,15 @@
 
 domain_name={{ domain }}
 
+function flush_hosts_file {
+  if [ -f "{{ conf_dir }}/hosts/hosts.dnsmasq" ]
+  then
+    cp {{ conf_dir }}/hosts/hosts.dnsmasq /tmp/wireguard-dns-hosts.temp
+    grep -v "${client_name} ${client_name}.${domain_name}" /tmp/wireguard-dns-hosts.temp > {{ conf_dir }}/hosts/hosts.dnsmasq
+    rm -f /tmp/wireguard-dns-hosts.temp
+  fi
+}
+
 function parse_yaml {
    local prefix=$2
    local s='[[:space:]]*' w='[a-zA-Z0-9_]*' fs=$(echo @|tr @ '\034')
@@ -27,18 +36,15 @@ while read -r endpoint
 do
   client_public_ip=$(echo ${endpoint}|awk '{print $2}'|cut -d: -f1)
   private_key=$(echo ${endpoint}|awk '{print $1}')
-  connected_client=$(parse_yaml {{ outputdir }}/configs.yml|grep ${private_key})
+  connected_client=$(parse_yaml {{ conf_dir }}/configs.yml|grep ${private_key})
   client_name=$(echo ${connected_client}|cut -d_ -f1)
-  client_private_ip=$(parse_yaml {{ outputdir }}/configs.yml|grep ${client_name}|grep cidr|cut -d= -f2|cut -d/ -f1|tr -d '"')
+  client_private_ip=$(parse_yaml {{ conf_dir }}/configs.yml|grep ${client_name}|grep cidr|cut -d= -f2|cut -d/ -f1|sed -e 's/"//g')
   if [ -n "${client_name}" ] && [ -n "${client_public_ip}" ]
   then
-    if [ -f "{{ outputdir }}/hosts.dynamic" ]
-    then
-      cp {{ outputdir }}/hosts.dynamic {{ outputdir }}/hosts.dynamic.temp
-      grep -v "${client_name} ${client_name}.${domain_name}" {{ outputdir }}/hosts.dynamic.temp > {{ outputdir }}/hosts.dynamic
-    fi
-    echo "${client_public_ip} ${client_name} ${client_name}.${domain_name}" >> {{ outputdir }}/hosts.dynamic
-    echo "${client_private_ip} ${client_name} ${client_name}.${domain_name}" >> {{ outputdir }}/hosts.dynamic
+    grep -q "^${client_public_ip} ${client_name} ${client_name}.${domain_name}\$" {{ conf_dir }}/hosts/hosts.dnsmasq || (flush_hosts_file && echo -e "${client_public_ip} ${client_name} ${client_name}.${domain_name}\n${client_private_ip} ${client_name} ${client_name}.${domain_name}" >> {{ conf_dir }}/hosts/hosts.dnsmasq)
+  fi
+  if [ -n "$(dig ${client_name}.${domain_name}|grep ^${client_public_ip} ${client_name}.${domain_name}|sort|uniq -c|grep -v '^      1')" ]
+  then
+    killall -1 dnsmasq
   fi
 done <<< $(wg show wg-dns-server endpoints|grep -v '(none)')
-systemctl restart dnsmasq

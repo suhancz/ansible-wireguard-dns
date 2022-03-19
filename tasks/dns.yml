@@ -22,8 +22,15 @@
     - dnssec
     - dnssec-check-unsigned
     - conf-file=/usr/share/dnsmasq/trust-anchors.conf
-    - "addn-hosts={{ outputdir }}/hosts.dynamic"
+    - "hostsdir={{ conf_dir }}/hosts"
     - localise-queries
+    - interface=ens192
+    - interface=wg-dns-server
+    - interface-name=ens192,vpn
+    - interface-name=wg-dns-server,wireguard
+    - "domain={{ domain }}"
+    - expand-hosts
+    - bogus-priv
 - name: Make sure DNSMASQ is running
   systemd:
     name: dnsmasq

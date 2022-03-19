@@ -17,7 +17,7 @@ server:
   address: this.is.my.server # mandatory, but advised to set in vars/secret.yml - the IP address or domain name the clients find the server at
   lport: 12345 # mandatory, but advised to set in vars/secret.yml - the port the WireGuard server listens on
 dns_ip: 8.8.8.8 # mandatory, but advised to set in vars/secret.yml - the IP address of the DNS server the clients will use after connection
-outputdir: ./outputdir # optional - the output directory to save the generated configs to
+conf_dir: ./conf_dir # optional - the output directory to save the generated configs to
 clients:
   # client-specific config
   client2: # name of the client for reference
