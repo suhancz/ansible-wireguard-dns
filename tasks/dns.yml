@@ -1,3 +1,7 @@
+- name: Open firewall
+  include: firewall.yml
+  vars:
+    port: dns
 - name: Configure DNSMASQ
   lineinfile:
     path: /etc/dnsmasq.conf

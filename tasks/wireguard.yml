@@ -45,6 +45,10 @@
     backup: yes
   loop: "{{ configs|dict2items }}"
   when: item.key != "server"
+- name: Open firewall
+  include: firewall.yml
+  vars:
+    port: "{{ configs.server.lport }}/udp"
 - name: Start or restart WireGuard server
   block:
     - name: Start WireGuard server
