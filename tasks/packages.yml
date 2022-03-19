@@ -9,4 +9,5 @@
       - dnsmasq
       - dnsmasq-utils
       - inotify-tools
+      - bind-utils
     state: latest

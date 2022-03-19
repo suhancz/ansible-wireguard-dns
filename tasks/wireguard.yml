@@ -23,29 +23,33 @@
 - name: Merge initial client config with generated keys
   set_fact:
     configs: "{{ configs|default({})|combine(clients, recursive=True) }}"
-- name: Make sure output directory exists
+- name: Make sure config directory structure exists
   file:
     state: directory
-    name: "{{ outputdir }}"
+    name: "{{ item }}"
+  loop:
+    - "{{ conf_dir }}"
+    - "{{ conf_dir }}/clients"
+    - "{{ conf_dir }}/hosts"
 - name: Generate server config
   template:
     src: wireguard/server.conf.j2
-    dest: "{{ outputdir }}/wg-dns-server.conf"
+    dest: "{{ conf_dir }}/wg-dns-server.conf"
     backup: yes
 - name: Deploy client registry to the server
   copy:
     content: "{{ configs|to_nice_yaml }}"
-    dest: "{{ outputdir }}/configs.yml"
+    dest: "{{ conf_dir }}/configs.yml"
 - name: Create client config dirs
   file:
     state: directory
-    name: "{{ outputdir }}/clients/{{ item.key }}"
+    name: "{{ conf_dir }}/clients/{{ item.key }}"
   loop: "{{ configs|dict2items }}"
   when: item.key != "server"
 - name: Generate client configs
   template:
     src: wireguard/client.conf.j2
-    dest: "{{ outputdir }}/clients/{{ item.key }}/wg0.conf"
+    dest: "{{ conf_dir }}/clients/{{ item.key }}/wg0.conf"
     backup: yes
   loop: "{{ configs|dict2items }}"
   when: item.key != "server"
@@ -55,7 +59,7 @@
     port: "{{ configs.server.lport }}/udp"
 - name: Create symlink to the WireGuard config
   file:
-    src: "{{ outputdir }}/wg-dns-server.conf"
+    src: "{{ conf_dir }}/wg-dns-server.conf"
     dest: /etc/wireguard/wg-dns-server.conf
     state: link
     backup: yes

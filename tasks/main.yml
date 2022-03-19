@@ -15,7 +15,7 @@
 - name: Deploy WireGuard watch script
   template:
     src: update_dnsmasq_with_wireguard_clients.sh.j2
-    dest: "{{ outputdir }}/update_dnsmasq_with_wireguard_clients.sh"
+    dest: "{{ conf_dir }}/update_dnsmasq_with_wireguard_clients.sh"
     mode: u=rwx,go=rx
 - name: Deploy systemd service
   template:
