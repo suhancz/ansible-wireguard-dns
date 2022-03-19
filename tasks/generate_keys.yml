@@ -1,0 +1,34 @@
+---
+- name: Generate private key
+  command: wg genkey
+  when: wg_privatekey is not defined or wg_privatekey == ""
+  register: wg_privatekey_output
+- name: Fetch private key from config
+  set_fact:
+    wg_privatekey_output:
+      stdout: "{{ wg_privatekey }}"
+  when: wg_privatekey is defined and wg_privatekey != ""
+- name: Generate public key
+  command: wg pubkey
+  args:
+    stdin: "{{ wg_privatekey_output.stdout }}"
+  when: wg_publickey is not defined or wg_publickey == ""
+  register: wg_publickey_output
+- name: Fetch public key from config
+  set_fact:
+    wg_publickey_output:
+      stdout: "{{ wg_publickey }}"
+  when: wg_publickey is defined and wg_publickey != ""
+- name: Generate pre-shared key
+  command: wg genpsk
+  when: wg_psk is not defined or wg_psk == ""
+  register: wg_psk_output
+- name: Fetch pre-shared key from config
+  set_fact:
+    wg_psk_output:
+      stdout: "{{ wg_psk }}"
+  when: wg_psk is defined and wg_psk != ""
+- set_fact:
+    configs_json: '{"{{ wg_name }}": {"privatekey": "{{ wg_privatekey_output.stdout }}", "publickey": "{{ wg_publickey_output.stdout }}", "psk": "{{ wg_psk_output.stdout }}"}}'
+- set_fact:
+    configs: "{{ configs|default({})|combine(configs_json) }}"

@@ -1,0 +1,15 @@
+- name: "Create restart directory for {{ service }}"
+  file:
+    state: directory
+    path: "/etc/systemd/system/{{ service }}.service.d"
+    mode: u=rwX,og=rX
+    owner: root
+    group: root
+- name: "Deploy restart files for {{ service }}"
+  template:
+    src: systemd/restart.conf.j2
+    dest: "/etc/systemd/system/{{ service }}.service.d/restart.conf"
+    mode: u=rw,og=r
+    backup: yes
+    owner: root
+    group: root
