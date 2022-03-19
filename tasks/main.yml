@@ -1,0 +1,38 @@
+---
+# tasks file for ansible-freshtomato-tunsafe-wireguard
+- name: Read default variables
+  include_vars: vars/secret.yml
+- name: Merge server with defaults
+  set_fact:
+    server: "{{ server|default({})|combine(server_secret, recursive=True) }}"
+    clients: "{{ clients|default({})|combine(clients_secret, recursive=True) }}"
+- name: Configure OS
+  include: os.yml
+- name: Configure WireGuard
+  include: wireguard.yml
+- name: Configure DNS
+  include: dns.yml
+- name: Deploy WireGuard watch script
+  template:
+    src: update_dnsmasq_with_wireguard_clients.sh.j2
+    dest: "{{ outputdir }}/update_dnsmasq_with_wireguard_clients.sh"
+    mode: u=rwx,go=rx
+- name: Deploy systemd service
+  template:
+    src: systemd/wireguard-dns.service.j2
+    dest: /etc/systemd/system/wireguard-dns.service
+    mode: u=rw,go=r
+- name: Set up automatic restart of services
+  include: autorestart.yml
+  vars:
+    service: wireguard-dns
+- name: Make sure services are running
+  systemd:
+    name: "{{ item }}"
+    daemon_reload: yes
+    enabled: yes
+    state: restarted
+  loop:
+    - wg-quick@wg-dns-server
+    - dnsmasq
+    - wireguard-dns

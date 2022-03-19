@@ -1,0 +1,33 @@
+- name: Check SELinux status
+  shell: getenforce
+  register: getenforce
+- name: Install requiremets
+  block:
+    - name: Install packages
+      include: packages.yml
+  rescue:
+    - name: Find repo configs
+      find:
+        paths: /etc/yum.repos.d
+        patterns: "*.repo"
+      register: repo_files
+    - name: Disable CentOS mirrorlist
+      replace:
+        path: "{{ item }}"
+        regexp: "mirrorlist=http://mirrorlist.centos.org"
+        replace: "#mirrorlist=http://mirrorlist.centos.org"
+        validate: "grep '#mirrorlist=http://mirrorlist.centos.org' %s"
+      loop: "{{ repo_files.files }}"
+    - name: Move to CentOS Vault
+      replace:
+        path: "{{ item }}"
+        regexp: "#baseurl=http://mirror.centos.org"
+        replace: "baseurl=http://vault.centos.org"
+        validate: "grep '^baseurl=http://vault.centos.org' %s"
+      loop: "{{ repo_files.files }}"
+    - name: Install packages
+      include: packages.yml
+- name: Enable ip_conntrack
+  modprobe:
+    name: ip_conntrack
+    state: present
