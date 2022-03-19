@@ -14,7 +14,7 @@ ListenPort = {{ item.value.lport }}
 [Peer]
 PublicKey = {{ configs.server.publickey }}
 Endpoint = {{ configs.server.address }}:{{ configs.server.lport }}
-AllowedIPs = 0.0.0.0/0, ::/0
+AllowedIPs = {{ configs.server.cidr }}
 {% if 'psk' in item.value %}
 PresharedKey = {{ item.value.psk }}
 {% endif %}

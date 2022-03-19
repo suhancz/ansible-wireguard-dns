@@ -29,9 +29,13 @@
     name: "{{ outputdir }}"
 - name: Generate server config
   template:
-    src: server.conf.j2
-    dest: "{{ outputdir }}/wg-server.conf"
+    src: wireguard/server.conf.j2
+    dest: "{{ outputdir }}/wg-dns-server.conf"
     backup: yes
+- name: Deploy client registry to the server
+  copy:
+    content: "{{ configs|to_nice_yaml }}"
+    dest: "{{ outputdir }}/configs.yml"
 - name: Create client config dirs
   file:
     state: directory
@@ -40,7 +44,7 @@
   when: item.key != "server"
 - name: Generate client configs
   template:
-    src: client.conf.j2
+    src: wireguard/client.conf.j2
     dest: "{{ outputdir }}/clients/{{ item.key }}/wg0.conf"
     backup: yes
   loop: "{{ configs|dict2items }}"
@@ -49,12 +53,9 @@
   include: firewall.yml
   vars:
     port: "{{ configs.server.lport }}/udp"
-- name: Start or restart WireGuard server
-  block:
-    - name: Start WireGuard server
-      command: "wg-quick up {{ outputdir }}/wg-server.conf"
-  rescue:
-    - name: Stop WireGuard server
-      command: "wg-quick down {{ outputdir }}/wg-server.conf"
-    - name: Start WireGuard server
-      command: "wg-quick up {{ outputdir }}/wg-server.conf"
+- name: Create symlink to the WireGuard config
+  file:
+    src: "{{ outputdir }}/wg-dns-server.conf"
+    dest: /etc/wireguard/wg-dns-server.conf
+    state: link
+    backup: yes

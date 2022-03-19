@@ -8,4 +8,5 @@
       - conntrack-tools
       - dnsmasq
       - dnsmasq-utils
+      - inotify-tools
     state: latest
