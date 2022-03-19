@@ -9,7 +9,7 @@ server:
   # lport: 12345 # mandatory, but advised to set in vars/secret.yml
 # dns_ip: 8.8.8.8 # mandatory, but advised to set in vars/secret.yml
 # domain: my.server # mandatory, but advised to set in vars/secret.yml
-outputdir: /etc/ansible-wireguard-dns # optional
+conf_dir: /etc/wireguard-dns # optional
 # clients:
 #   myclient: # name of the client for reference
 #     cidr: 10.42.42.254/32 # mandatory, but advised to set in vars/secret.yml

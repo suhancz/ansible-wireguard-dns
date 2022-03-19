@@ -22,7 +22,7 @@
     - dnssec
     - dnssec-check-unsigned
     - conf-file=/usr/share/dnsmasq/trust-anchors.conf
-    - "addn-hosts={{ outputdir }}/hosts.dynamic"
+    - "hostsdir={{ conf_dir }}/hosts"
     - localise-queries
 - name: Make sure DNSMASQ is running
   systemd:
