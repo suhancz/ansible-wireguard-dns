@@ -1,0 +1,12 @@
+- name: Install packages
+  package:
+    name:
+      - epel-release
+      - kmod-wireguard
+      - wireguard-tools
+      - iptables-services
+      - conntrack-tools
+      - dnsmasq
+      - dnsmasq-utils
+      - inotify-tools
+    state: latest
